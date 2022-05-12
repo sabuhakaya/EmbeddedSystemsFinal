@@ -1,0 +1,27 @@
+--cpu Cortex-M3
+"eetermproject\startup_stm32f103x6.o"
+"eetermproject\lcd.o"
+"eetermproject\main.o"
+"eetermproject\stm32f1xx_it.o"
+"eetermproject\stm32f1xx_hal_msp.o"
+"eetermproject\stm32f1xx_hal_gpio_ex.o"
+"eetermproject\stm32f1xx_hal_adc.o"
+"eetermproject\stm32f1xx_hal_adc_ex.o"
+"eetermproject\stm32f1xx_hal.o"
+"eetermproject\stm32f1xx_hal_rcc.o"
+"eetermproject\stm32f1xx_hal_rcc_ex.o"
+"eetermproject\stm32f1xx_hal_gpio.o"
+"eetermproject\stm32f1xx_hal_dma.o"
+"eetermproject\stm32f1xx_hal_cortex.o"
+"eetermproject\stm32f1xx_hal_pwr.o"
+"eetermproject\stm32f1xx_hal_flash.o"
+"eetermproject\stm32f1xx_hal_flash_ex.o"
+"eetermproject\stm32f1xx_hal_exti.o"
+"eetermproject\stm32f1xx_hal_tim.o"
+"eetermproject\stm32f1xx_hal_tim_ex.o"
+"eetermproject\stm32f1xx_hal_uart.o"
+"eetermproject\system_stm32f1xx.o"
+--strict --scatter "EETermProject\EETermProject.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "EETermProject.map" -o EETermProject\EETermProject.axf
