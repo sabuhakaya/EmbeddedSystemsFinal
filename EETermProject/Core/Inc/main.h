@@ -50,6 +50,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -58,12 +60,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define lamp0_Pin GPIO_PIN_13
-#define lamp0_GPIO_Port GPIOC
-#define lamp1_Pin GPIO_PIN_14
-#define lamp1_GPIO_Port GPIOC
-#define lamp2_Pin GPIO_PIN_15
-#define lamp2_GPIO_Port GPIOC
 #define LCD_EN_Pin GPIO_PIN_2
 #define LCD_EN_GPIO_Port GPIOA
 #define LCD_RS_Pin GPIO_PIN_3
@@ -76,12 +72,16 @@ void Error_Handler(void);
 #define LCD_D6_GPIO_Port GPIOA
 #define LCD_D7_Pin GPIO_PIN_7
 #define LCD_D7_GPIO_Port GPIOA
-#define input0_Pin GPIO_PIN_5
+#define input0_Pin GPIO_PIN_0
 #define input0_GPIO_Port GPIOB
-#define input1_Pin GPIO_PIN_6
+#define input0_EXTI_IRQn EXTI0_IRQn
+#define input1_Pin GPIO_PIN_1
 #define input1_GPIO_Port GPIOB
-#define input2_Pin GPIO_PIN_7
-#define input2_GPIO_Port GPIOB
+#define input1_EXTI_IRQn EXTI1_IRQn
+#define lamp0_Pin GPIO_PIN_12
+#define lamp0_GPIO_Port GPIOB
+#define lamp1_Pin GPIO_PIN_13
+#define lamp1_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
