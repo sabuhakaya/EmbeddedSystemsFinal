@@ -292,10 +292,10 @@ int main(void)
 			sprintf(lmp,"Lamps: %s %s",lamps[0] ? "ON":"OFF", lamps[1]? "ON":"OFF");
 			lcd_print(2,1,lmp);
 		 
-			char tim[32]="";
-			sprintf(tim,"        Time Tick: %d", timeTick);
-			lcd_print(4,1,tim);
-			HAL_Delay(50);
+			//char tim[32]="";
+			//sprintf(tim,"        Time Tick: %d", timeTick);
+			//lcd_print(4,1,tim);
+			//HAL_Delay(50);
 			
 			char msg[32]="";
 			sprintf(msg,"Temperature=%lu Celcius\r\n", adcVal0);
@@ -309,7 +309,6 @@ int main(void)
 			memset(msg, 0, 32); // reset msg
 			sprintf(msg,"TimeTick=%d s\r\n", timeTick);
 			HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
-
 		 
 			HAL_Delay(10);
 		}
@@ -317,6 +316,10 @@ int main(void)
 			  lcd_clear();
 				lcd_print(1,1,"System on Sleep");
 				HAL_Delay(50);
+			  lamps[0]=false;
+				lamps[1]=false;
+        HAL_GPIO_WritePin(lamp0_GPIO_Port, lamp0_Pin, GPIO_PIN_RESET ); // Toggle The Output (LED) Pin
+        HAL_GPIO_WritePin(lamp1_GPIO_Port, lamp1_Pin, GPIO_PIN_RESET ); // Toggle The Output (LED) Pin
 		}
   }
   /* USER CODE END 3 */
@@ -613,12 +616,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     {
       HAL_GPIO_TogglePin(lamp0_GPIO_Port, lamp0_Pin); // Toggle The Output (LED) Pin
 			lamps[0]=!lamps[0];
+			timeTick=0;
     }
 		else if(GPIO_Pin == input1_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
     {
-    HAL_GPIO_TogglePin(lamp1_GPIO_Port, lamp1_Pin); // Toggle The Output (LED) Pin
-						lamps[1]=!lamps[1];
-
+      HAL_GPIO_TogglePin(lamp1_GPIO_Port, lamp1_Pin); // Toggle The Output (LED) Pin
+			lamps[1]=!lamps[1];
+			timeTick=0;
     }
 		else if(GPIO_Pin == pir_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
@@ -629,11 +633,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		else if(GPIO_Pin == UP_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
 			Stepper_rotate(10,10);
+			timeTick=0;
 			/// Motor up
 		}
 		else if(GPIO_Pin == DOWN_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
 			Stepper_rotate(-10,10);
+			timeTick=0;
+
 			/// Motor down
 		}	
 
