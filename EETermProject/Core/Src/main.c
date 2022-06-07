@@ -24,8 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include "LCD.h"
 #include<stdio.h>
+#include<stdbool.h>
 #include <string.h>
-#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,7 +69,6 @@ uint32_t adcVal0, adcVal1;
 ADC_ChannelConfTypeDef sConfig;
 bool lamps[] = {0,0};
 int timeTick=0;
-
 char msg[32];
 char tem1[32];
 /* USER CODE END 0 */
@@ -107,7 +106,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
-
+	
   lcd_init(_LCD_4BIT, _LCD_FONT_5x8, _LCD_2LINE);
 
   lcd_print(1,1,"Displaying Values");
@@ -123,7 +122,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  sConfig.Channel=ADC_CHANNEL_0;
+
+    sConfig.Channel=ADC_CHANNEL_0;
 	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 	  HAL_ADC_Start(&hadc1);
 	  if(HAL_ADC_PollForConversion(&hadc1, 5)==HAL_OK)
@@ -137,8 +137,34 @@ int main(void)
 	  	sprintf(tem,"%lu",adcVal0);
 	  	lcd_print(1,1,"Temperature");
 	  	lcd_print(1,13,tem);
+	  	HAL_Delay(50);
 	  }
-	 //HAL_Delay(1000);
+	  HAL_ADC_Stop(&hadc1);
+	  HAL_Delay(50);
+
+	  //HAL_Delay(1000);
+	  sConfig.Channel=ADC_CHANNEL_1;
+	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+	  HAL_ADC_Start(&hadc1);
+	  if(HAL_ADC_PollForConversion(&hadc1, 5)==HAL_OK)
+	  {
+	  	adcVal1=HAL_ADC_GetValue(&hadc1);
+			//adcVal1=(((float)adcVal1/(float)4096)+0.095)/0.009-1;
+	  	//adcVal0=(adcVal0/4095+0.095)/0.009;
+	  	HAL_Delay(50);
+	  	//lcd_clear();
+	  	//char tem1[32]="";
+	  	//sprintf(tem1,"%lu",adcVal1);
+	  	//lcd_print(2,13,tem1);
+	  	//lcd_print(2,1,"Pressure");
+	  	//HAL_Delay(100);
+	  	//voltage = (float)(adcVal1*3.3)/4095;
+	    //angle = voltage*300/3.3;
+	    //Stepper_rotate(angle, 10);
+	  }
+		HAL_ADC_Stop(&hadc1);
+	  HAL_Delay(50);
+	  //HAL_Delay(1000);
 	  
 		char lmp[32]="";
 		sprintf(lmp,"Lamps: %s %s",lamps[0] ? "ON":"OFF", lamps[1]? "ON":"OFF");
@@ -408,6 +434,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
     timeTick++;
 }
+
 /* USER CODE END 4 */
 
 /**
@@ -442,3 +469,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

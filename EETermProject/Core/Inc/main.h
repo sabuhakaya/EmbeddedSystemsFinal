@@ -76,9 +76,9 @@ void Error_Handler(void);
 #define input1_Pin GPIO_PIN_1
 #define input1_GPIO_Port GPIOB
 #define input1_EXTI_IRQn EXTI1_IRQn
-#define lamp0_Pin GPIO_PIN_12
+#define lamp0_Pin GPIO_PIN_3
 #define lamp0_GPIO_Port GPIOB
-#define lamp1_Pin GPIO_PIN_13
+#define lamp1_Pin GPIO_PIN_4
 #define lamp1_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
@@ -89,3 +89,5 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
