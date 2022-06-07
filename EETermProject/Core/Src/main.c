@@ -268,50 +268,56 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if(timeTick<1000){
+			sConfig.Channel=ADC_CHANNEL_0;
+			HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+			HAL_ADC_Start(&hadc1);
+			if(HAL_ADC_PollForConversion(&hadc1, 5)==HAL_OK)
+			{
+				adcVal0=HAL_ADC_GetValue(&hadc1);
+				adcVal0=(adcVal0*500)/4096;
+				//adcVal0=(adcVal0/4095+0.095)/0.009;
+				HAL_Delay(50);
+				lcd_clear();
+				char tem[32]="";
+				sprintf(tem,"%lu", adcVal0);
+				lcd_print(1,1,"Temperature");
+				lcd_print(1,13,tem);
+				HAL_Delay(50);
+			}
+			HAL_ADC_Stop(&hadc1);
+			HAL_Delay(50);
+			
+			char lmp[32]="";
+			sprintf(lmp,"Lamps: %s %s",lamps[0] ? "ON":"OFF", lamps[1]? "ON":"OFF");
+			lcd_print(2,1,lmp);
+		 
+			char tim[32]="";
+			sprintf(tim,"        Time Tick: %d", timeTick);
+			lcd_print(4,1,tim);
+			HAL_Delay(50);
+			
+			char msg[32]="";
+			sprintf(msg,"Temperature=%lu Celcius\r\n", adcVal0);
+			HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
+			memset(msg, 0, 32); // reset msg
+			sprintf(msg,"Lamp0=%s \r\n", lamps[0] ? "ON":"OFF");
+			HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
+			memset(msg, 0, 32); // reset msg
+			sprintf(msg,"Lamp1=%s \r\n", lamps[1] ? "ON":"OFF");
+			HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
+			memset(msg, 0, 32); // reset msg
+			sprintf(msg,"TimeTick=%d s\r\n", timeTick);
+			HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
 
-    sConfig.Channel=ADC_CHANNEL_0;
-	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
-	  HAL_ADC_Start(&hadc1);
-	  if(HAL_ADC_PollForConversion(&hadc1, 5)==HAL_OK)
-	  {
-	  	adcVal0=HAL_ADC_GetValue(&hadc1);
-	  	adcVal0=(adcVal0*500)/4096;
-	  	//adcVal0=(adcVal0/4095+0.095)/0.009;
-	  	HAL_Delay(50);
-	  	lcd_clear();
-	  	char tem[32]="";
-	  	sprintf(tem,"%lu", adcVal0);
-	  	lcd_print(1,1,"Temperature");
-	  	lcd_print(1,13,tem);
-	  	HAL_Delay(50);
-	  }
-	  HAL_ADC_Stop(&hadc1);
-	  HAL_Delay(50);
-	  
-		char lmp[32]="";
-		sprintf(lmp,"Lamps: %s %s",lamps[0] ? "ON":"OFF", lamps[1]? "ON":"OFF");
-		lcd_print(2,1,lmp);
-	 
-		char tim[32]="";
-		sprintf(tim,"        Time Tick: %d", timeTick);
-		lcd_print(4,1,tim);
-		HAL_Delay(50);
-	  
-	  char msg[32]="";
-	  sprintf(msg,"Temperature=%lu Celcius\r\n", adcVal0);
-	  HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
-		memset(msg, 0, 32); // reset msg
-		sprintf(msg,"Lamp0=%s \r\n", lamps[0] ? "ON":"OFF");
-	  HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
-		memset(msg, 0, 32); // reset msg
-		sprintf(msg,"Lamp1=%s \r\n", lamps[1] ? "ON":"OFF");
-	  HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
-		memset(msg, 0, 32); // reset msg
-		sprintf(msg,"TimeTick=%d s\r\n", timeTick);
-	  HAL_UART_Transmit(&huart1,(uint8_t*)msg,strlen(msg),HAL_MAX_DELAY);
-
-	 
-	  HAL_Delay(10);
+		 
+			HAL_Delay(10);
+		}
+		else{  
+			  lcd_clear();
+				lcd_print(1,1,"System on Sleep");
+				HAL_Delay(50);
+		}
   }
   /* USER CODE END 3 */
 }
@@ -569,6 +575,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : pir_Pin UP_Pin DOWN_Pin */
+  GPIO_InitStruct.Pin = pir_Pin|UP_Pin|DOWN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pins : in1_Pin in2_Pin in3_Pin in4_Pin
                            lamp0_Pin lamp1_Pin */
   GPIO_InitStruct.Pin = in1_Pin|in2_Pin|in3_Pin|in4_Pin
@@ -578,18 +590,15 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : UP_Pin DOWN_Pin */
-  GPIO_InitStruct.Pin = UP_Pin|DOWN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
@@ -611,6 +620,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 						lamps[1]=!lamps[1];
 
     }
+		else if(GPIO_Pin == pir_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
+		{
+			/// Motor down
+			timeTick=0;
+		}
+		/// HIGH PRESCELAR INTERRUPTS
 		else if(GPIO_Pin == UP_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
 			Stepper_rotate(10,10);
@@ -620,8 +635,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 			Stepper_rotate(-10,10);
 			/// Motor down
+		}	
 
-		}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
