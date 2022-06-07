@@ -272,6 +272,7 @@ int main(void)
 			sConfig.Channel=ADC_CHANNEL_0;
 			HAL_ADC_ConfigChannel(&hadc1, &sConfig);
 			HAL_ADC_Start(&hadc1);
+			
 			if(HAL_ADC_PollForConversion(&hadc1, 5)==HAL_OK)
 			{
 				adcVal0=HAL_ADC_GetValue(&hadc1);
@@ -283,6 +284,10 @@ int main(void)
 				sprintf(tem,"%lu", adcVal0);
 				lcd_print(1,1,"Temperature");
 				lcd_print(1,13,tem);
+				HAL_Delay(50);
+			}
+			else{
+				lcd_print(1,1,"Temp.Sensor Corrupt ");
 				HAL_Delay(50);
 			}
 			HAL_ADC_Stop(&hadc1);

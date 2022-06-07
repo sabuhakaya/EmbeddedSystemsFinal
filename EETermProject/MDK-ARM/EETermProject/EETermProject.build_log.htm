@@ -27,7 +27,14 @@ Project File Date:  06/07/2022
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'EETermProject'
-"EETermProject\EETermProject.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+../Core/Inc/LCD.h(37): warning:  #1-D: last line of file ends without a newline
+  void lcd_line2(void);
+../Core/Src/main.c: 1 warning, 0 errors
+linking...
+Program Size: Code=10774 RO-data=294 RW-data=32 ZI-data=1904  
+FromELF: creating hex file...
+"EETermProject\EETermProject.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -51,7 +58,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.5.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
