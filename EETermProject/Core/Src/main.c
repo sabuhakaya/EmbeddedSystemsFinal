@@ -52,6 +52,146 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
+
+
+
+#define IN1Port in1_GPIO_Port
+#define IN1Pin in1_Pin
+
+#define IN2Port in2_GPIO_Port
+#define IN2Pin  in2_Pin
+
+#define IN3Port in3_GPIO_Port
+#define IN3Pin  in3_Pin
+
+#define IN4Port in4_GPIO_Port
+#define IN4Pin  in4_Pin
+
+#define stepsperrev 2048
+
+
+/* To produce us Delay */
+void delay (uint16_t us)
+{
+	__HAL_TIM_SET_COUNTER(&htim1, 0);
+	while (__HAL_TIM_GET_COUNTER(&htim1) < us);
+}
+
+/*set the RPM for the Stepper */
+void stepper_set_rpm (int rpm)  // Set rpm--> max 13, min 1,,,  went to 14 rev/min
+{
+	delay(60000000/stepsperrev/rpm);
+}
+
+
+/*Set a particular pin */
+void SetPin (GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+	HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_SET);
+}
+
+/*Reset a particular pin */
+void ResetPin (GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+	HAL_GPIO_WritePin(GPIOx, GPIO_Pin, GPIO_PIN_RESET);
+}
+
+/* Wave Drive for Stepper
+ * It Energizes 1 Electromagnet at a time
+ * 1 revolution is 2048 steps = 512 Sequences
+ * Here Sequence stands for one complete loop inside this function
+ * As there are 4 steps in one loop/sequence, 2048 steps = 512 sequences
+ */
+void stepper_wave_drive (int step)
+{
+	switch (step){
+		case 0:
+			  SetPin(IN1Port, IN1Pin);   // IN1 SET
+			  ResetPin(IN2Port, IN2Pin);   // IN2 RESET
+			  ResetPin(IN3Port, IN3Pin);   // IN3 RESET
+			  ResetPin(IN4Port, IN4Pin);   // IN4 RESET
+			  break;
+
+		case 1:
+			  ResetPin(IN1Port, IN1Pin);   // IN1 RESET
+			  SetPin(IN2Port, IN2Pin);   // IN2 SET
+			  ResetPin(IN3Port, IN3Pin);   // IN3 RESET
+			  ResetPin(IN4Port, IN4Pin);   // IN4 RESET
+			  break;
+
+		case 2:
+			  ResetPin(IN1Port, IN1Pin);   // IN1 RESET
+			  ResetPin(IN2Port, IN2Pin);   // IN2 RESET
+			  SetPin(IN3Port, IN3Pin);   // IN3 SET
+			  ResetPin(IN4Port, IN4Pin);   // IN4 RESET
+			  break;
+
+		case 3:
+			  ResetPin(IN1Port, IN1Pin);   // IN1 RESET
+			  ResetPin(IN2Port, IN2Pin);   // IN2 RESET
+			  ResetPin(IN3Port, IN3Pin);   // IN3 RESET
+			  SetPin(IN4Port, IN4Pin);   // IN4 SET
+
+		}
+}
+
+/* Step the motor by some particular angle
+ * DIRECTION: 0 -> CK, 1 -> CCK
+ */
+
+void stepper_step_angle (float angle, int direction, int rpm)
+{
+	float anglepersequence = 0.703125;  // 360 degrees= 512 sequences
+	int numberofsequences = (int) (angle/anglepersequence);
+
+	for (int seq=0; seq<numberofsequences; seq++)
+	{
+		if (direction == 0)  // for clockwise
+		{
+			for (int step=7; step>=0; step--)
+			{
+				stepper_wave_drive(step);
+				stepper_set_rpm(rpm);
+			}
+
+		}
+
+		else if (direction == 1)  // for Counter-clockwise
+		{
+			for (int step=0; step<8; step++)
+			{
+				stepper_wave_drive(step);
+				stepper_set_rpm(rpm);
+			}
+		}
+	}
+}
+
+
+uint16_t ADC_VAL;
+float voltage;
+float angle;
+float currentAngle = 0;
+
+/* Rotate the motor */
+void Stepper_rotate (int angle, int rpm)
+{
+	int changeinangle = 0;
+	changeinangle = angle-currentAngle;  // calculate the angle by which the motor needed to be rotated
+	if (changeinangle > 2)  // clockwise
+	{
+		stepper_step_angle (changeinangle,0,rpm);
+		currentAngle = angle;  // save the angle as current angle
+	}
+	else if (changeinangle <-2) // CCK
+	{
+		changeinangle = -(changeinangle);
+		stepper_step_angle (changeinangle,1,rpm);
+		currentAngle = angle;
+	}
+}
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,6 +248,8 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
+	
+	HAL_TIM_Base_Start(&htim1);
 	HAL_TIM_Base_Start_IT(&htim2);
 	
   lcd_init(_LCD_4BIT, _LCD_FONT_5x8, _LCD_2LINE);
@@ -122,6 +264,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -470,10 +613,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 		else if(GPIO_Pin == UP_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
+			Stepper_rotate(10,10);
 			/// Motor up
 		}
 		else if(GPIO_Pin == DOWN_Pin) // If The INT Source Is EXTI Line9 (A9 Pin)
 		{
+			Stepper_rotate(-10,10);
 			/// Motor down
 
 		}
