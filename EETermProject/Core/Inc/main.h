@@ -76,10 +76,24 @@ void Error_Handler(void);
 #define input1_Pin GPIO_PIN_1
 #define input1_GPIO_Port GPIOB
 #define input1_EXTI_IRQn EXTI1_IRQn
+#define in1_Pin GPIO_PIN_12
+#define in1_GPIO_Port GPIOB
+#define in2_Pin GPIO_PIN_13
+#define in2_GPIO_Port GPIOB
+#define in3_Pin GPIO_PIN_14
+#define in3_GPIO_Port GPIOB
+#define in4_Pin GPIO_PIN_15
+#define in4_GPIO_Port GPIOB
 #define lamp0_Pin GPIO_PIN_3
 #define lamp0_GPIO_Port GPIOB
 #define lamp1_Pin GPIO_PIN_4
 #define lamp1_GPIO_Port GPIOB
+#define UP_Pin GPIO_PIN_5
+#define UP_GPIO_Port GPIOB
+#define UP_EXTI_IRQn EXTI9_5_IRQn
+#define DOWN_Pin GPIO_PIN_6
+#define DOWN_GPIO_Port GPIOB
+#define DOWN_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
@@ -89,5 +103,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
